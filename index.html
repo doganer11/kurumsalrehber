@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kurumsal Bulut Rehberi | v13.6-Final</title>
+    <title>Kurumsal Bulut Rehberi | v13.8-Final</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -142,7 +142,7 @@
                 <div class="flex-1 grid grid-cols-2 gap-2 w-full">
                     <input type="text" id="cAd" placeholder="Ad *" required class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
                     <input type="text" id="cSoyad" placeholder="Soyad *" required class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
-                    <input type="text" id="cUnvan" placeholder="Ünvan" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm col-span-2">
+                    <input type="text" id="cUnvan" placeholder="İş Ünvanı" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm col-span-2">
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -236,7 +236,7 @@ class BulutRehber {
                 const batch = {};
                 json.forEach((row, idx) => {
                     const nid = db.ref().child('contacts').push().key;
-                    batch[nid] = { ad: getVal(row, ['ad', 'isim', 'first name', 'name']) || "İsimsiz", soyad: getVal(row, ['soyad', 'surname', 'last name']) || "", tel1: getVal(row, ['tel1', 'telefon', 'phone', 'cep', 'cep no']), tel2: getVal(row, ['tel2', 'sabit', 'sabit no', 'ev']), tel3: getVal(row, ['tel3', 'diğer', 'diger']), unvan: getVal(row, ['unvan', 'title', 'pozisyon']), email: getVal(row, ['email', 'e-posta', 'eposta', 'mail']), notlar: getVal(row, ['notlar', 'not', 'note']), kategori: getVal(row, ['kategori', 'category']) || "Genel" };
+                    batch[nid] = { ad: getVal(row, ['ad', 'isim', 'first name', 'name']) || "İsimsiz", soyad: getVal(row, ['soyad', 'surname', 'last name']) || "", tel1: getVal(row, ['tel1', 'telefon', 'phone', 'cep', 'cep no']), tel2: getVal(row, ['tel2', 'sabit', 'sabit no', 'ev']), tel3: getVal(row, ['tel3', 'diğer', 'diger']), unvan: getVal(row, ['unvan', 'title', 'pozisyon', 'iş ünvanı', 'is unvani']), email: getVal(row, ['email', 'e-posta', 'eposta', 'mail']), notlar: getVal(row, ['notlar', 'not', 'note']), kategori: getVal(row, ['kategori', 'category']) || "Genel" };
                     this.updateProgress(((idx+1)/json.length)*100);
                 });
                 await db.ref("contacts").update(batch);
@@ -281,7 +281,24 @@ class BulutRehber {
         reader.onload = async (ev) => {
             const cards = ev.target.result.split("END:VCARD").filter(c => c.includes("BEGIN:VCARD"));
             const batch = {};
-            cards.forEach((card, idx) => { const fn = (card.match(/FN(?:;.*)?:(.*)/) || ["","Yeni"])[1].trim(); const tel = (card.match(/TEL(?:;.*)?:(.*)/) || ["",""])[1].replace(/[-() ]/g, '').trim(); const nid = db.ref().child('contacts').push().key; batch[nid] = { ad: fn.split(' ')[0], soyad: fn.split(' ').slice(1).join(' '), tel1: tel, tel2: "", tel3: "", kategori: "Genel", unvan: "" }; this.updateProgress(((idx+1)/cards.length)*100); });
+            cards.forEach((card, idx) => { 
+                const fn = (card.match(/FN(?:;.*)?:(.*)/) || ["","Yeni"])[1].trim(); 
+                const tel = (card.match(/TEL(?:;.*)?:(.*)/) || ["",""])[1].replace(/[-() ]/g, '').trim(); 
+                // Ünvan hem TITLE hem ORG etiketinden kontrol ediliyor
+                const titleMatch = card.match(/TITLE(?:;.*)?:(.*)/);
+                const orgMatch = card.match(/ORG(?:;.*)?:(.*)/);
+                const unvan = (titleMatch ? titleMatch[1] : (orgMatch ? orgMatch[1] : "")).trim();
+                
+                const nid = db.ref().child('contacts').push().key; 
+                batch[nid] = { 
+                    ad: fn.split(' ')[0], 
+                    soyad: fn.split(' ').slice(1).join(' '), 
+                    tel1: tel, tel2: "", tel3: "", 
+                    kategori: "Genel", 
+                    unvan: unvan 
+                }; 
+                this.updateProgress(((idx+1)/cards.length)*100); 
+            });
             await db.ref("contacts").update(batch);
             this.showToast("vCard Aktarıldı", "#10b981"); e.target.value = "";
         };
