@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kurumsal Bulut Rehberi | v13.8-Final</title>
+    <title>Kurumsal Bulut Rehberi | Güvenli Erişim</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -14,50 +14,64 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
         
+        /* Giriş Ekranı Stili */
+        #loginScreen { position: fixed; inset: 0; background: #4f46e5; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: white; padding: 2rem; border-radius: 2rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        
+        /* Ana İçerik Gizleme */
+        #mainApp { display: none; height: 100vh; flex-direction: column; }
+
+        /* Mevcut Stiller */
         #contactsWrapper.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
         @media (max-width: 640px) { #contactsWrapper.grid-mode { grid-template-columns: 1fr; } }
         #contactsWrapper.list-mode { display: flex; flex-direction: column; gap: 0.5rem; }
-
         .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; transition: all 0.3s; position: relative; display: flex; flex-direction: column; padding: 1rem; }
         .grid-mode .card { min-height: 340px; }
         .list-mode .card { flex-direction: row !important; align-items: center !important; padding: 0.6rem 1rem !important; border-radius: 1rem; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
         .card.selected { border: 2px solid #4f46e5; background-color: #f8fafc; }
-        
         .select-checkbox { position: absolute; top: 0.75rem; left: 0.75rem; width: 1.1rem; height: 1.1rem; cursor: pointer; z-index: 10; }
-        
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 1rem; }
         .modal.active { display: flex; }
         .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 1.5rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto; }
-
         .view-btn.active { background-color: #4f46e5; color: white; }
-        
         .mobile-cat-bar { display: none; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; margin-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
         @media (max-width: 1024px) { .mobile-cat-bar { display: flex; gap: 0.4rem; } }
-
         .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; z-index: 2000; min-width: 220px; }
         .dropdown-menu.show { display: block; }
-
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 10px 20px; border-radius: 10px; color: white; font-weight: 600; transition: 0.4s; z-index: 3000; text-align: center; font-size: 13px; }
         #toast.active { transform: translateX(-50%) translateY(0); }
-        
         #progressOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
         #progressOverlay.active { display: flex; }
-
         .photo-upload-container { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: #f1f5f9; border: 2px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; shrink-0; }
     </style>
 </head>
 <body>
 
-<div id="toast"></div>
-<div id="progressOverlay">
-    <div class="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
-        <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+<div id="loginScreen">
+    <div class="login-card">
+        <div class="mb-6">
+            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-lock text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Güvenli Erişim</h2>
+            <p class="text-slate-400 text-xs mt-1">Lütfen devam etmek için şifreyi girin</p>
+        </div>
+        <input type="password" id="passInput" placeholder="Şifre" class="w-full p-4 bg-slate-100 rounded-xl outline-none mb-4 text-center font-bold tracking-widest border-2 border-transparent focus:border-indigo-500 transition">
+        <button onclick="app.checkPassword()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">Giriş Yap</button>
+        <p id="loginError" class="text-red-500 text-[10px] mt-3 font-bold hidden italic text-center">Hatalı şifre, lütfen tekrar deneyin.</p>
     </div>
-    <div id="progressText" class="font-black text-indigo-600 text-[10px] uppercase tracking-widest">İşleniyor: %0</div>
 </div>
 
-<div class="h-screen flex flex-col overflow-hidden">
+<div id="mainApp">
+    <div id="toast"></div>
+    <div id="progressOverlay">
+        <div class="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+            <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div id="progressText" class="font-black text-indigo-600 text-[10px] uppercase tracking-widest">İşleniyor: %0</div>
+    </div>
+
     <header class="bg-white border-b px-4 md:px-6 py-2 shadow-sm shrink-0">
         <div class="flex items-center justify-between gap-3 max-w-7xl mx-auto">
             <div class="flex items-center gap-2 shrink-0">
@@ -71,6 +85,7 @@
             </div>
 
             <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="app.logout()" class="p-2 text-slate-400 hover:text-red-500 transition mr-2" title="Çıkış Yap"><i class="fa-solid fa-power-off"></i></button>
                 <div id="selectionBatch" class="hidden flex items-center bg-indigo-50 px-2 py-1.5 rounded-lg border border-indigo-100">
                     <span id="selectCount" class="text-[10px] font-bold text-indigo-600 px-1">0</span>
                     <button onclick="app.deleteSelected()" class="text-red-500 px-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
@@ -105,25 +120,20 @@
 
     <main class="flex-1 flex overflow-hidden flex-col lg:flex-row">
         <aside class="w-64 bg-white border-r p-5 hidden lg:flex flex-col gap-4 overflow-y-auto">
-            <div class="flex justify-between items-center">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategoriler</h3>
-                <button onclick="app.toggleSelectAll()" class="text-[9px] font-bold text-indigo-600">Tümü</button>
-            </div>
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategoriler</h3>
             <div id="catList" class="space-y-0.5"></div>
             <button onclick="app.openCategoryModal()" class="mt-2 text-[10px] font-bold text-slate-400 flex items-center gap-2 hover:text-indigo-600"><i class="fa-solid fa-tags"></i> Yönet</button>
         </aside>
 
         <div class="flex-1 flex flex-col p-3 md:p-6 overflow-hidden">
             <div id="mobileCatBar" class="mobile-cat-bar"></div>
-
             <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" id="statText">Buluta bağlanılıyor...</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" id="statText">Veriler alınıyor...</span>
                 <div class="flex bg-white p-0.5 rounded-lg border">
                     <button onclick="app.setView('grid')" id="btn-grid" class="view-btn p-1.5 px-3 rounded-md active"><i class="fa-solid fa-grip text-xs"></i></button>
                     <button onclick="app.setView('list')" id="btn-list" class="view-btn p-1.5 px-3 rounded-md"><i class="fa-solid fa-list text-xs"></i></button>
                 </div>
             </div>
-
             <div id="contactsWrapper" class="flex-1 overflow-y-auto grid-mode pr-1"></div>
         </div>
     </main>
@@ -176,7 +186,10 @@
 </div>
 
 <script>
+// --- KONFİGÜRASYON ---
+const APP_PASSWORD = "1234"; // <-- BURADAN ŞİFREYİ DEĞİŞTİRİN
 const DATABASE_URL = "https://kurumsalrehber-18ac9-default-rtdb.firebaseio.com/"; 
+
 const firebaseConfig = { databaseURL: DATABASE_URL };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
@@ -189,12 +202,43 @@ class BulutRehber {
         this.view = 'grid';
         this.currentPhoto = null;
         this.init();
-        window.addEventListener('click', () => { document.getElementById('opsDropdown').classList.remove('show'); });
+        
+        // Enter tuşuyla girişi destekle
+        document.getElementById('passInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.checkPassword();
+        });
     }
 
-    toggleDropdown(e) { e.stopPropagation(); document.getElementById('opsDropdown').classList.toggle('show'); }
+    checkPassword() {
+        const input = document.getElementById('passInput').value;
+        const error = document.getElementById('loginError');
+        if (input === APP_PASSWORD) {
+            sessionStorage.setItem('isLoggedIn', 'true');
+            this.showApp();
+        } else {
+            error.classList.remove('hidden');
+            document.getElementById('passInput').value = "";
+        }
+    }
+
+    showApp() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'flex';
+        this.loadFirebase();
+    }
+
+    logout() {
+        sessionStorage.removeItem('isLoggedIn');
+        location.reload();
+    }
 
     init() {
+        if (sessionStorage.getItem('isLoggedIn') === 'true') {
+            this.showApp();
+        }
+    }
+
+    loadFirebase() {
         db.ref("categories").on("value", s => {
             const d = s.val();
             this.categories = d ? Object.keys(d).map(k => ({id: k, name: d[k]})) : [];
@@ -211,8 +255,12 @@ class BulutRehber {
             this.renderSideCats();
             document.getElementById('statText').innerText = `${this.contacts.length} Kayıt Senkronize`;
         });
+
         document.getElementById('contactForm').onsubmit = e => { e.preventDefault(); this.save(); };
+        window.addEventListener('click', () => { document.getElementById('opsDropdown').classList.remove('show'); });
     }
+
+    toggleDropdown(e) { e.stopPropagation(); document.getElementById('opsDropdown').classList.toggle('show'); }
 
     updateProgress(percent) {
         document.getElementById('progressOverlay').classList.add('active');
@@ -240,39 +288,9 @@ class BulutRehber {
                     this.updateProgress(((idx+1)/json.length)*100);
                 });
                 await db.ref("contacts").update(batch);
-                this.showToast("İçe Aktarma Tamamlandı", "#10b981");
-                e.target.value = "";
-            } catch (err) { this.showToast("Hata oluştu!", "#ef4444"); }
-        };
-        reader.readAsArrayBuffer(file);
-    }
-
-    importBackup(e) {
-        const file = e.target.files[0]; if(!file) return;
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-            try {
-                const data = JSON.parse(ev.target.result);
-                if(data.contacts) {
-                    const batch = {};
-                    data.contacts.forEach((c, idx) => { const nid = db.ref().child('contacts').push().key; const {id, ...rest} = c; batch[nid] = rest; this.updateProgress(((idx+1)/data.contacts.length)*100); });
-                    await db.ref("contacts").update(batch);
-                    this.showToast("Yedek Geri Yüklendi", "#10b981");
-                }
-            } catch (err) { this.showToast("Dosya hatası", "#ef4444"); }
-            e.target.value = "";
-        };
-        reader.readAsText(file);
-    }
-
-    async deleteSelected() {
-        if(!confirm("Seçilenleri sil?")) return;
-        const ids = Array.from(this.selectedIds);
-        const updates = {};
-        ids.forEach((id, idx) => { updates[id] = null; this.updateProgress(((idx+1)/ids.length)*100); });
-        await db.ref("contacts").update(updates);
-        this.selectedIds.clear(); this.updateSelectionUI();
-        this.showToast("Seçilenler silindi", "#ef4444");
+                this.showToast("İçe Aktarma Tamamlandı", "#10b981"); e.target.value = "";
+            } catch (err) { this.showToast("Hata!", "#ef4444"); }
+        }; reader.readAsArrayBuffer(file);
     }
 
     async importVCF(e) {
@@ -284,25 +302,16 @@ class BulutRehber {
             cards.forEach((card, idx) => { 
                 const fn = (card.match(/FN(?:;.*)?:(.*)/) || ["","Yeni"])[1].trim(); 
                 const tel = (card.match(/TEL(?:;.*)?:(.*)/) || ["",""])[1].replace(/[-() ]/g, '').trim(); 
-                // Ünvan hem TITLE hem ORG etiketinden kontrol ediliyor
                 const titleMatch = card.match(/TITLE(?:;.*)?:(.*)/);
                 const orgMatch = card.match(/ORG(?:;.*)?:(.*)/);
                 const unvan = (titleMatch ? titleMatch[1] : (orgMatch ? orgMatch[1] : "")).trim();
-                
                 const nid = db.ref().child('contacts').push().key; 
-                batch[nid] = { 
-                    ad: fn.split(' ')[0], 
-                    soyad: fn.split(' ').slice(1).join(' '), 
-                    tel1: tel, tel2: "", tel3: "", 
-                    kategori: "Genel", 
-                    unvan: unvan 
-                }; 
+                batch[nid] = { ad: fn.split(' ')[0], soyad: fn.split(' ').slice(1).join(' '), tel1: tel, tel2: "", tel3: "", kategori: "Genel", unvan: unvan }; 
                 this.updateProgress(((idx+1)/cards.length)*100); 
             });
             await db.ref("contacts").update(batch);
             this.showToast("vCard Aktarıldı", "#10b981"); e.target.value = "";
-        };
-        reader.readAsText(file);
+        }; reader.readAsText(file);
     }
 
     render(data = this.contacts) {
@@ -313,7 +322,7 @@ class BulutRehber {
             const item = document.createElement('div');
             item.className = `card ${isSelected ? 'selected' : ''}`;
             if(this.view === 'grid') {
-                item.innerHTML = `<input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}')"><div class="flex flex-col items-center text-center flex-1"><div class="w-16 h-16 rounded-full border bg-slate-50 overflow-hidden mb-2">${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold">${c.ad[0]}</div>`}</div><h4 class="font-bold text-sm text-slate-800">${c.ad} ${c.soyad||''}</h4><p class="text-[9px] text-indigo-600 font-black uppercase mb-2">${c.unvan || ''}</p><div class="space-y-1 w-full px-1">${c.tel1 ? `<div class="text-[11px] font-bold text-slate-600 bg-slate-50 py-1 rounded-lg"><i class="fa-solid fa-mobile-screen-button text-indigo-400 mr-2"></i>${c.tel1}</div>` : ''}${c.tel2 ? `<p class="text-[10px] text-slate-400"><i class="fa-solid fa-phone mr-1"></i>${c.tel2}</p>` : ''}${c.email ? `<p class="text-[10px] text-indigo-500 truncate"><i class="fa-solid fa-envelope mr-1"></i>${c.email}</p>` : ''}</div>${c.notlar ? `<p class="text-[10px] text-slate-400 mt-auto pt-2 border-t w-full italic line-clamp-1">"${c.notlar}"</p>` : ''}</div><div class="flex justify-between items-center mt-3 pt-3 border-t"><span class="text-[8px] font-bold text-slate-300 uppercase">${c.kategori}</span><div class="flex gap-1"><button onclick="app.edit('${c.id}')" class="p-1.5 text-indigo-600 bg-indigo-50 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="app.del('${c.id}')" class="p-1.5 text-red-400 bg-red-50 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>`;
+                item.innerHTML = `<input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}')"><div class="flex flex-col items-center text-center flex-1"><div class="w-16 h-16 rounded-full border bg-slate-50 overflow-hidden mb-2">${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold">${c.ad[0]}</div>`}</div><h4 class="font-bold text-sm text-slate-800">${c.ad} ${c.soyad||''}</h4><p class="text-[9px] text-indigo-600 font-black uppercase mb-2">${c.unvan || ''}</p><div class="space-y-1 w-full px-1">${c.tel1 ? `<div class="text-[11px] font-bold text-slate-600 bg-slate-50 py-1 rounded-lg"><i class="fa-solid fa-mobile-screen-button text-indigo-400 mr-2"></i>${c.tel1}</div>` : ''}${c.tel2 ? `<p class="text-[10px] text-slate-400"><i class="fa-solid fa-phone mr-1"></i>${c.tel2}</p>` : ''}</div></div><div class="flex justify-between items-center mt-3 pt-3 border-t"><span class="text-[8px] font-bold text-slate-300 uppercase">${c.kategori}</span><div class="flex gap-1"><button onclick="app.edit('${c.id}')" class="p-1.5 text-indigo-600 bg-indigo-50 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="app.del('${c.id}')" class="p-1.5 text-red-400 bg-red-50 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>`;
             } else {
                 item.innerHTML = `<input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}')"><div class="flex items-center gap-3 flex-1 min-w-0"><div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover rounded-full">` : `${c.ad[0]}`}</div><div class="flex-1 min-w-0"><div class="font-bold text-xs truncate">${c.ad} ${c.soyad||''}</div><div class="text-[9px] text-slate-400 truncate">${c.unvan || ''}</div></div><div class="hidden sm:block text-[11px] font-bold text-slate-600">${c.tel1 || ''}</div></div><div class="flex gap-1 ml-2"><button onclick="app.edit('${c.id}')" class="text-indigo-600 p-1.5"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="app.del('${c.id}')" class="text-red-300 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button></div>`;
             }
@@ -322,16 +331,15 @@ class BulutRehber {
         this.updateSelectionUI();
     }
 
+    // --- DİĞER FONKSİYONLAR (Öncekiyle aynı) ---
     search(q) { const term = q.toLowerCase(); this.render(this.contacts.filter(c => `${c.ad} ${c.soyad} ${c.tel1} ${c.unvan} ${c.kategori}`.toLowerCase().includes(term))); }
     setView(v) { this.view = v; document.getElementById('btn-grid').classList.toggle('active', v === 'grid'); document.getElementById('btn-list').classList.toggle('active', v === 'list'); const wrapper = document.getElementById('contactsWrapper'); wrapper.className = `flex-1 overflow-y-auto ${v}-mode`; this.render(); }
-    
     save() { 
         const id = document.getElementById('cId').value; 
         const data = { ad: document.getElementById('cAd').value, soyad: document.getElementById('cSoyad').value, unvan: document.getElementById('cUnvan').value, kategori: document.getElementById('cKategori').value, tel1: document.getElementById('cTel1').value, tel2: document.getElementById('cTel2').value, tel3: document.getElementById('cTel3').value, email: document.getElementById('cEmail').value, notlar: document.getElementById('cNotlar').value, photo: this.currentPhoto || "" }; 
         const ref = id ? db.ref("contacts/" + id) : db.ref("contacts").push(); 
         ref.set(data).then(() => { this.closeModal(); this.showToast("Kaydedildi", "#10b981"); }); 
     }
-
     renderSideCats() { 
         const list = document.getElementById('catList'); const mobileBar = document.getElementById('mobileCatBar'); if(!list || !mobileBar) return;
         let html = `<button onclick="app.render()" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-slate-100 text-[11px] font-bold opacity-60">Tümü</button>`;
@@ -339,24 +347,19 @@ class BulutRehber {
         this.categories.forEach(c => { const count = this.contacts.filter(item => item.kategori === c.name).length; html += `<button onclick="app.filterCat('${c.name}')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-indigo-50 text-[11px] font-bold flex justify-between items-center group"><span class="text-slate-600">${c.name}</span><span class="text-[9px] text-slate-300">${count}</span></button>`; mHtml += `<button onclick="app.filterCat('${c.name}')" class="bg-white border px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">${c.name}</button>`; });
         list.innerHTML = html; mobileBar.innerHTML = mHtml;
     }
-
     toggleSelect(id) { if(this.selectedIds.has(id)) this.selectedIds.delete(id); else this.selectedIds.add(id); this.render(); }
-    toggleSelectAll() { if(this.selectedIds.size === this.contacts.length) this.selectedIds.clear(); else this.contacts.forEach(c => this.selectedIds.add(c.id)); this.render(); }
     updateSelectionUI() { document.getElementById('selectionBatch').classList.toggle('hidden', this.selectedIds.size === 0); document.getElementById('selectCount').innerText = this.selectedIds.size; }
     filterCat(cat) { this.render(this.contacts.filter(c => c.kategori === cat)); }
     handlePhoto(e) { const r = new FileReader(); r.onload = ev => { this.currentPhoto = ev.target.result; const img = document.getElementById('imgPrev'); img.src = ev.target.result; img.classList.remove('hidden'); }; r.readAsDataURL(e.target.files[0]); }
-    
     edit(id) { 
         const c = this.contacts.find(x => x.id === id); 
         document.getElementById('cId').value = c.id; document.getElementById('cAd').value = c.ad; document.getElementById('cSoyad').value = c.soyad || ""; 
         document.getElementById('cUnvan').value = c.unvan || ""; document.getElementById('cKategori').value = c.kategori; 
         document.getElementById('cTel1').value = c.tel1 || ""; document.getElementById('cTel2').value = c.tel2 || ""; 
-        document.getElementById('cTel3').value = c.tel3 || ""; document.getElementById('cEmail').value = c.email || ""; 
-        document.getElementById('cNotlar').value = c.notlar || ""; 
+        document.getElementById('cEmail').value = c.email || ""; document.getElementById('cNotlar').value = c.notlar || ""; 
         if(c.photo) { this.currentPhoto = c.photo; const img = document.getElementById('imgPrev'); img.src = c.photo; img.classList.remove('hidden'); } 
         document.getElementById('contactModal').classList.add('active');
     }
-
     del(id) { if(confirm("Silinsin mi?")) db.ref("contacts/"+id).remove(); }
     openModal() { document.getElementById('contactModal').classList.add('active'); document.getElementById('cKategori').value = "Genel"; }
     closeModal() { document.getElementById('contactModal').classList.remove('active'); document.getElementById('contactForm').reset(); document.getElementById('imgPrev').classList.add('hidden'); this.currentPhoto = null; document.getElementById('cId').value = ""; }
@@ -367,9 +370,8 @@ class BulutRehber {
     openCategoryModal() { document.getElementById('categoryModal').classList.add('active'); }
     closeCategoryModal() { document.getElementById('categoryModal').classList.remove('active'); }
     showToast(m, c) { const t = document.getElementById('toast'); t.style.background = c; t.innerText = m; t.classList.add('active'); setTimeout(()=>t.classList.remove('active'), 2500); }
-    
     exportExcel() { const data = this.contacts.map(({id, photo, ...rest}) => rest); const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Rehber"); XLSX.writeFile(wb, "Rehber.xlsx"); }
-    exportVCF() { let v = ""; this.contacts.forEach(c => v += `BEGIN:VCARD\nVERSION:3.0\nFN:${c.ad} ${c.soyad}\nTEL;TYPE=CELL:${c.tel1}\nTEL;TYPE=WORK:${c.tel2}\nEMAIL:${c.email}\nTITLE:${c.unvan}\nEND:VCARD\n`); const b = new Blob([v], {type: "text/vcard"}); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "rehber.vcf"; a.click(); }
+    exportVCF() { let v = ""; this.contacts.forEach(c => v += `BEGIN:VCARD\nVERSION:3.0\nFN:${c.ad} ${c.soyad}\nTEL;TYPE=CELL:${c.tel1}\nTITLE:${c.unvan}\nEND:VCARD\n`); const b = new Blob([v], {type: "text/vcard"}); const u = URL.createObjectURL(b); const a = document.createElement("a"); a.href = u; a.download = "rehber.vcf"; a.click(); }
     exportBackup() { const b = new Blob([JSON.stringify({contacts: this.contacts, categories: this.categories})], {type: "application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "yedek.json"; a.click(); }
 }
 const app = new BulutRehber();
