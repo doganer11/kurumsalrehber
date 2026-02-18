@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Kurumsal Bulut Rehberi | Güvenli Erişim</title>
+    <title>Kurumsal Rehber | Güvenli Erişim</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -13,21 +13,63 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
+        
+        /* Login Screen */
         #loginScreen { position: fixed; inset: 0; background: #4f46e5; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .login-card { background: white; padding: 2rem; border-radius: 2rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        
         #mainApp { display: none; height: 100vh; flex-direction: column; }
-        #contactsWrapper.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+        /* Grid Sistemi ve Kartlar */
+        #contactsWrapper.grid-mode { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 1.5rem; 
+            align-content: start;
+        }
         @media (max-width: 640px) { #contactsWrapper.grid-mode { grid-template-columns: 1fr; } }
+        
         #contactsWrapper.list-mode { display: flex; flex-direction: column; gap: 0.5rem; }
-        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.25rem; transition: all 0.3s; position: relative; display: flex; flex-direction: column; padding: 1rem; }
-        .grid-mode .card { min-height: 340px; }
-        .list-mode .card { flex-direction: row !important; align-items: center !important; padding: 0.6rem 1rem !important; border-radius: 1rem; }
-        .card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+
+        /* Kart Kare Yapısı */
+        .card { 
+            background: white; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 1.25rem; 
+            transition: all 0.3s; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 1.25rem; 
+            cursor: pointer; 
+            height: 100%; /* Kartların eşit boyda olması için */
+            min-height: 320px; 
+            justify-content: space-between;
+        }
+        
+        .list-mode .card { 
+            flex-direction: row !important; 
+            align-items: center !important; 
+            padding: 0.6rem 1rem !important; 
+            border-radius: 1rem; 
+            min-height: auto;
+        }
+
+        .card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .card.selected { border: 2px solid #4f46e5; background-color: #f8fafc; }
-        .select-checkbox { position: absolute; top: 0.75rem; left: 0.75rem; width: 1.1rem; height: 1.1rem; cursor: pointer; z-index: 10; }
+        
+        .select-checkbox { position: absolute; top: 0.75rem; left: 0.75rem; width: 1.1rem; height: 1.1rem; cursor: pointer; z-index: 20; }
+        
+        /* Bilgi Satırları */
+        .info-row { font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; padding: 6px 10px; border-radius: 8px; margin-top: 5px; display: flex; align-items: center; gap: 8px; border: 1px solid #f1f5f9; }
+        .card-not-area { font-size: 10px; color: #64748b; background: #fffbeb; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px dashed #fcd34d; word-break: break-word; white-space: pre-wrap; flex-grow: 1; }
+
+        /* Modallar */
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 1rem; }
         .modal.active { display: flex; }
         .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 1.5rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto; }
+
+        /* Diğer UI Elemanları */
         .view-btn.active { background-color: #4f46e5; color: white; }
         .mobile-cat-bar { display: none; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; margin-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
         @media (max-width: 1024px) { .mobile-cat-bar { display: flex; gap: 0.4rem; } }
@@ -36,7 +78,6 @@
         #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 10px 20px; border-radius: 10px; color: white; font-weight: 600; transition: 0.4s; z-index: 3000; text-align: center; font-size: 13px; }
         #toast.active { transform: translateX(-50%) translateY(0); }
         #progressOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
-        #progressOverlay.active { display: flex; }
         .photo-upload-container { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: #f1f5f9; border: 2px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; shrink-0; }
     </style>
 </head>
@@ -45,10 +86,10 @@
 <div id="loginScreen">
     <div class="login-card">
         <div class="mb-6">
-            <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fa-solid fa-lock text-2xl"></i>
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 p-2 shadow-sm border">
+                <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="w-full h-full object-contain">
             </div>
-            <h2 class="text-xl font-bold text-slate-800">Güvenli Erişim</h2>
+            <h2 class="text-xl font-bold text-slate-800">Kurumsal Rehber</h2>
             <p class="text-slate-400 text-xs mt-1">Lütfen devam etmek için şifreyi girin</p>
         </div>
         <input type="password" id="passInput" placeholder="Şifre" class="w-full p-4 bg-slate-100 rounded-xl outline-none mb-4 text-center font-bold tracking-widest border-2 border-transparent focus:border-indigo-500 transition">
@@ -69,12 +110,12 @@
     <header class="bg-white border-b px-4 md:px-6 py-2 shadow-sm shrink-0">
         <div class="flex items-center justify-between gap-3 max-w-7xl mx-auto">
             <div class="flex items-center gap-2 shrink-0">
-                <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="h-8 w-8">
+                <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="h-10 w-10 object-contain">
                 <h1 class="hidden md:block font-black text-sm text-slate-800 uppercase tracking-tighter">Kurumsal Rehber</h1>
             </div>
             <div class="relative flex-1 max-w-md">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                <input type="text" oninput="app.search(this.value)" placeholder="Hızlı ara..." class="w-full pl-9 pr-4 py-2 bg-slate-100 rounded-xl outline-none text-xs font-medium border border-transparent focus:border-indigo-300 transition">
+                <input type="text" id="searchInput" oninput="app.search(this.value)" placeholder="İsim, Tel, Not her şeyi ara..." class="w-full pl-9 pr-4 py-2 bg-slate-100 rounded-xl outline-none text-xs font-medium border border-transparent focus:border-indigo-300 transition">
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
                 <button onclick="app.logout()" class="p-2 text-slate-400 hover:text-red-500 transition mr-2" title="Çıkış Yap"><i class="fa-solid fa-power-off"></i></button>
@@ -182,7 +223,7 @@
 <script>
 // --- KONFİGÜRASYON ---
 const APP_PASSWORD = "1234"; 
-const DATABASE_URL = "https://kurumsalrehber-18ac9-default-rtdb.firebaseio.com/"; 
+const DATABASE_URL = "https://kurumsalrehber-18ac9-default-rtdb.firebaseio.com"; 
 
 const firebaseConfig = { databaseURL: DATABASE_URL };
 firebase.initializeApp(firebaseConfig);
@@ -219,7 +260,6 @@ class BulutRehber {
     }
 
     logout() { sessionStorage.removeItem('isLoggedIn'); location.reload(); }
-
     init() { if (sessionStorage.getItem('isLoggedIn') === 'true') this.showApp(); }
 
     loadFirebase() {
@@ -303,10 +343,54 @@ class BulutRehber {
             const isSelected = this.selectedIds.has(c.id);
             const item = document.createElement('div');
             item.className = `card ${isSelected ? 'selected' : ''}`;
+            
+            item.onclick = (e) => {
+                if(e.target.type !== 'checkbox' && !e.target.closest('button')) this.edit(c.id);
+            };
+
+            const fullInfo = `
+                ${c.tel1 ? `<div class="info-row"><i class="fa-solid fa-mobile-screen text-indigo-400 w-3"></i>${c.tel1}</div>` : ''}
+                ${c.tel2 ? `<div class="info-row"><i class="fa-solid fa-phone text-indigo-400 w-3"></i>${c.tel2}</div>` : ''}
+                ${c.tel3 ? `<div class="info-row"><i class="fa-solid fa-tty text-indigo-400 w-3"></i>${c.tel3}</div>` : ''}
+                ${c.email ? `<div class="info-row"><i class="fa-solid fa-envelope text-indigo-400 w-3"></i>${c.email}</div>` : ''}
+                ${c.notlar ? `<div class="card-not-area">${c.notlar}</div>` : ''}
+            `;
+
             if(this.view === 'grid') {
-                item.innerHTML = `<input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}')"><div class="flex flex-col items-center text-center flex-1"><div class="w-16 h-16 rounded-full border bg-slate-50 overflow-hidden mb-2">${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold">${c.ad[0]}</div>`}</div><h4 class="font-bold text-sm text-slate-800">${c.ad} ${c.soyad||''}</h4><p class="text-[9px] text-indigo-600 font-black uppercase mb-2">${c.unvan || ''}</p><div class="space-y-1 w-full px-1">${c.tel1 ? `<div class="text-[11px] font-bold text-slate-600 bg-slate-50 py-1 rounded-lg"><i class="fa-solid fa-mobile-screen-button text-indigo-400 mr-2"></i>${c.tel1}</div>` : ''}</div></div><div class="flex justify-between items-center mt-3 pt-3 border-t"><span class="text-[8px] font-bold text-slate-300 uppercase">${c.kategori}</span><div class="flex gap-1"><button onclick="app.edit('${c.id}')" class="p-1.5 text-indigo-600 bg-indigo-50 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button><button onclick="app.del('${c.id}')" class="p-1.5 text-red-400 bg-red-50 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button></div></div>`;
+                item.innerHTML = `
+                    <input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}'); event.stopPropagation();">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-20 h-20 rounded-full border bg-slate-50 overflow-hidden mb-3 shadow-sm shrink-0">
+                            ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold text-xl">${c.ad[0]}</div>`}
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-800 leading-tight">${c.ad} ${c.soyad||''}</h4>
+                        <p class="text-[9px] text-indigo-600 font-black uppercase mt-1 mb-3">${c.unvan || ''}</p>
+                    </div>
+                    <div class="w-full text-left space-y-1">
+                        ${fullInfo}
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t">
+                        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${c.kategori}</span>
+                        <div class="flex gap-1">
+                            <button onclick="event.stopPropagation(); app.del('${c.id}')" class="p-1.5 text-red-400 bg-red-50 rounded-lg hover:bg-red-100 transition"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>`;
             } else {
-                item.innerHTML = `<input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}')"><div class="flex items-center gap-3 flex-1 min-w-0"><div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover rounded-full">` : `${c.ad[0]}`}</div><div class="flex-1 min-w-0"><div class="font-bold text-xs truncate">${c.ad} ${c.soyad||''}</div><div class="text-[9px] text-slate-400 truncate">${c.unvan || ''}</div></div><div class="hidden sm:block text-[11px] font-bold text-slate-600">${c.tel1 || ''}</div></div><div class="flex gap-1 ml-2"><button onclick="app.edit('${c.id}')" class="text-indigo-600 p-1.5"><i class="fa-solid fa-pen text-xs"></i></button><button onclick="app.del('${c.id}')" class="text-red-300 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button></div>`;
+                item.innerHTML = `
+                    <input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}'); event.stopPropagation();">
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">
+                            ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover rounded-full">` : `${c.ad[0]}`}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-bold text-xs truncate">${c.ad} ${c.soyad||''}</div>
+                            <div class="text-[9px] text-slate-400 truncate">${c.unvan || ''}</div>
+                        </div>
+                        <div class="hidden sm:block text-[11px] font-bold text-slate-600">${c.tel1 || ''}</div>
+                    </div>
+                    <div class="flex gap-1 ml-2">
+                        <button onclick="event.stopPropagation(); app.del('${c.id}')" class="text-red-300 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>`;
             }
             wrapper.appendChild(item);
         });
@@ -335,14 +419,26 @@ class BulutRehber {
     }
 
     updateSelectionUI() { document.getElementById('selectionBatch').classList.toggle('hidden', this.selectedIds.size === 0); document.getElementById('selectCount').innerText = this.selectedIds.size; }
-    search(q) { const term = q.toLowerCase(); this.render(this.contacts.filter(c => `${c.ad} ${c.soyad} ${c.tel1} ${c.unvan}`.toLowerCase().includes(term))); }
+
+    search(q) { 
+        const term = q.trim().toLocaleLowerCase('tr-TR');
+        if (!term) { this.render(); return; }
+        const filtered = this.contacts.filter(c => {
+            const searchData = [c.ad, c.soyad, c.tel1, c.tel2, c.tel3, c.unvan, c.notlar, c.email, c.kategori].map(v => (v || "").toLocaleLowerCase('tr-TR')).join(' ');
+            return searchData.includes(term);
+        });
+        this.render(filtered); 
+    }
+
     setView(v) { this.view = v; document.getElementById('btn-grid').classList.toggle('active', v === 'grid'); document.getElementById('btn-list').classList.toggle('active', v === 'list'); document.getElementById('contactsWrapper').className = `flex-1 overflow-y-auto ${v}-mode`; this.render(); }
+    
     save() { 
         const id = document.getElementById('cId').value; 
         const data = { ad: document.getElementById('cAd').value, soyad: document.getElementById('cSoyad').value, unvan: document.getElementById('cUnvan').value, kategori: document.getElementById('cKategori').value, tel1: document.getElementById('cTel1').value, tel2: document.getElementById('cTel2').value, tel3: document.getElementById('cTel3').value, email: document.getElementById('cEmail').value, notlar: document.getElementById('cNotlar').value, photo: this.currentPhoto || "" }; 
         const ref = id ? db.ref("contacts/" + id) : db.ref("contacts").push(); 
         ref.set(data).then(() => { this.closeModal(); this.showToast("Kaydedildi", "#10b981"); }); 
     }
+
     renderSideCats() { 
         const list = document.getElementById('catList'); const mobileBar = document.getElementById('mobileCatBar'); if(!list || !mobileBar) return;
         let html = `<button onclick="app.render()" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-slate-100 text-[11px] font-bold opacity-60">Tümü</button>`;
@@ -350,19 +446,23 @@ class BulutRehber {
         this.categories.forEach(c => { const count = this.contacts.filter(item => item.kategori === c.name).length; html += `<button onclick="app.filterCat('${c.name}')" class="w-full text-left px-3 py-1.5 rounded-lg hover:bg-indigo-50 text-[11px] font-bold flex justify-between items-center group"><span class="text-slate-600">${c.name}</span><span class="text-[9px] text-slate-300">${count}</span></button>`; mHtml += `<button onclick="app.filterCat('${c.name}')" class="bg-white border px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-600 shrink-0">${c.name}</button>`; });
         list.innerHTML = html; mobileBar.innerHTML = mHtml;
     }
+
     filterCat(cat) { this.render(this.contacts.filter(c => c.kategori === cat)); }
     handlePhoto(e) { const r = new FileReader(); r.onload = ev => { this.currentPhoto = ev.target.result; const img = document.getElementById('imgPrev'); img.src = ev.target.result; img.classList.remove('hidden'); }; r.readAsDataURL(e.target.files[0]); }
+    
     edit(id) { 
-        const c = this.contacts.find(x => x.id === id); 
+        const c = this.contacts.find(x => x.id === id); if(!c) return;
         document.getElementById('cId').value = c.id; document.getElementById('cAd').value = c.ad; document.getElementById('cSoyad').value = c.soyad || ""; 
         document.getElementById('cUnvan').value = c.unvan || ""; document.getElementById('cKategori').value = c.kategori; 
         document.getElementById('cTel1').value = c.tel1 || ""; document.getElementById('cTel2').value = c.tel2 || ""; 
-        document.getElementById('cEmail').value = c.email || ""; document.getElementById('cNotlar').value = c.notlar || ""; 
-        if(c.photo) { this.currentPhoto = c.photo; const img = document.getElementById('imgPrev'); img.src = c.photo; img.classList.remove('hidden'); } 
+        document.getElementById('cTel3').value = c.tel3 || ""; document.getElementById('cEmail').value = c.email || ""; 
+        document.getElementById('cNotlar').value = c.notlar || ""; 
+        if(c.photo) { this.currentPhoto = c.photo; const img = document.getElementById('imgPrev'); img.src = c.photo; img.classList.remove('hidden'); } else { this.currentPhoto = null; document.getElementById('imgPrev').classList.add('hidden'); }
         document.getElementById('contactModal').classList.add('active');
     }
+
     del(id) { if(confirm("Silinsin mi?")) db.ref("contacts/"+id).remove(); }
-    openModal() { document.getElementById('contactModal').classList.add('active'); document.getElementById('cKategori').value = "Genel"; }
+    openModal() { this.closeModal(); document.getElementById('contactModal').classList.add('active'); document.getElementById('cKategori').value = "Genel"; }
     closeModal() { document.getElementById('contactModal').classList.remove('active'); document.getElementById('contactForm').reset(); document.getElementById('imgPrev').classList.add('hidden'); this.currentPhoto = null; document.getElementById('cId').value = ""; }
     updateCatUI() { document.getElementById('cKategori').innerHTML = this.categories.map(c => `<option value="${c.name}" ${c.name === 'Genel' ? 'selected' : ''}>${c.name}</option>`).join(''); }
     renderManageCats() { document.getElementById('manageCatList').innerHTML = this.categories.map(c => `<div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg mb-1 border text-xs"><span>${c.name}</span>${c.name !== "Genel" ? `<button onclick="app.deleteCategory('${c.id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>` : ''}</div>`).join(''); }
