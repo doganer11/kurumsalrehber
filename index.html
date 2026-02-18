@@ -12,134 +12,144 @@
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        /* %125 Görünüm Ayarı için Temel Ölçeklendirme */
+        html { font-size: 18px; } /* Standart 16px'den 18px'e çekildi */
+
         body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
         
         #loginScreen { position: fixed; inset: 0; background: #4f46e5; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: white; padding: 2rem; border-radius: 2rem; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 2rem; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
         
         #mainApp { display: none; height: 100vh; flex-direction: column; }
 
         #contactsWrapper.grid-mode { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
             gap: 1.5rem; 
             align-content: start;
         }
         @media (max-width: 640px) { #contactsWrapper.grid-mode { grid-template-columns: 1fr; } }
         
-        #contactsWrapper.list-mode { display: flex; flex-direction: column; gap: 0.5rem; }
+        #contactsWrapper.list-mode { display: flex; flex-direction: column; gap: 0.75rem; }
 
         .card { 
             background: white; 
             border: 1px solid #e2e8f0; 
-            border-radius: 1.25rem; 
+            border-radius: 1.5rem; 
             transition: all 0.3s; 
             position: relative; 
             display: flex; 
             flex-direction: column; 
-            padding: 1.25rem; 
+            padding: 1.5rem; 
             cursor: pointer; 
             height: 100%; 
-            min-height: 320px; 
+            min-height: 350px; 
             justify-content: space-between;
         }
         
         .list-mode .card { 
             flex-direction: row !important; 
             align-items: center !important; 
-            padding: 0.6rem 1rem !important; 
-            border-radius: 1rem; 
+            padding: 0.8rem 1.2rem !important; 
+            border-radius: 1.25rem; 
             min-height: auto;
         }
 
         .card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .card.selected { border: 2px solid #4f46e5; background-color: #f8fafc; }
         
-        .select-checkbox { position: absolute; top: 0.75rem; left: 0.75rem; width: 1.1rem; height: 1.1rem; cursor: pointer; z-index: 20; }
+        .select-checkbox { position: absolute; top: 0.85rem; left: 0.85rem; width: 1.3rem; height: 1.3rem; cursor: pointer; z-index: 20; }
         
-        .info-row { font-size: 11px; font-weight: 600; color: #475569; background: #f8fafc; padding: 6px 10px; border-radius: 8px; margin-top: 5px; display: flex; align-items: center; gap: 8px; border: 1px solid #f1f5f9; }
-        .card-not-area { font-size: 10px; color: #64748b; background: #fffbeb; padding: 10px; border-radius: 10px; margin-top: 10px; border: 1px dashed #fcd34d; word-break: break-word; white-space: pre-wrap; flex-grow: 1; }
+        .info-row { font-size: 13px; font-weight: 600; color: #475569; background: #f8fafc; padding: 8px 12px; border-radius: 10px; margin-top: 6px; display: flex; align-items: center; gap: 10px; border: 1px solid #f1f5f9; }
+        .card-not-area { font-size: 12px; color: #64748b; background: #fffbeb; padding: 12px; border-radius: 12px; margin-top: 12px; border: 1px dashed #fcd34d; word-break: break-word; white-space: pre-wrap; flex-grow: 1; }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); padding: 1rem; }
         .modal.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 600px; border-radius: 1.5rem; padding: 1.5rem; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; width: 100%; max-width: 650px; border-radius: 2rem; padding: 2rem; max-height: 90vh; overflow-y: auto; }
 
         .view-btn.active { background-color: #4f46e5; color: white; }
-        
         .cat-btn.active { background-color: #4f46e5 !important; color: white !important; }
-        .cat-btn.active span { color: white !important; }
 
-        .mobile-cat-bar { display: none; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; margin-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
-        @media (max-width: 1024px) { .mobile-cat-bar { display: flex; gap: 0.4rem; } }
-        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; margin-top: 0.5rem; z-index: 2000; min-width: 220px; }
+        .mobile-cat-bar { display: none; overflow-x: auto; white-space: nowrap; padding-bottom: 6px; margin-bottom: 0.75rem; -webkit-overflow-scrolling: touch; }
+        @media (max-width: 1024px) { .mobile-cat-bar { display: flex; gap: 0.5rem; } }
+        
+        .dropdown-menu { display: none; position: absolute; right: 0; top: 100%; margin-top: 0.75rem; z-index: 2000; min-width: 250px; }
         .dropdown-menu.show { display: block; }
-        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 10px 20px; border-radius: 10px; color: white; font-weight: 600; transition: 0.4s; z-index: 3000; text-align: center; font-size: 13px; }
+        
+        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 12px 24px; border-radius: 12px; color: white; font-weight: 600; transition: 0.4s; z-index: 3000; text-align: center; font-size: 14px; }
         #toast.active { transform: translateX(-50%) translateY(0); }
+        
         #progressOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 5000; flex-direction: column; align-items: center; justify-content: center; }
         #progressOverlay.active { display: flex; }
-        .photo-upload-container { width: 80px; height: 80px; border-radius: 50%; position: relative; overflow: hidden; background: #f1f5f9; border: 2px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; shrink-0; }
+        .photo-upload-container { width: 100px; height: 100px; border-radius: 50%; position: relative; overflow: hidden; background: #f1f5f9; border: 3px solid #e2e8f0; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
     <div class="login-card">
-        <div class="mb-6">
-            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 p-2 shadow-sm border">
+        <div class="mb-8">
+            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 p-2 shadow-sm border">
                 <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="w-full h-full object-contain">
             </div>
-            <h2 class="text-xl font-bold text-slate-800">Kurumsal Rehber</h2>
-            <p class="text-slate-400 text-xs mt-1">Lütfen devam etmek için şifreyi girin</p>
+            <h2 class="text-2xl font-bold text-slate-800">Kurumsal Rehber</h2>
+            <p class="text-slate-400 text-sm mt-2">Lütfen devam etmek için şifreyi girin</p>
         </div>
-        <input type="password" id="passInput" placeholder="Şifre" class="w-full p-4 bg-slate-100 rounded-xl outline-none mb-4 text-center font-bold tracking-widest border-2 border-transparent focus:border-indigo-500 transition">
-        <button onclick="app.checkPassword()" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">Giriş Yap</button>
-        <p id="loginError" class="text-red-500 text-[10px] mt-3 font-bold hidden italic text-center">Hatalı şifre, lütfen tekrar deneyin.</p>
+        <input type="password" id="passInput" placeholder="Şifre" class="w-full p-5 bg-slate-100 rounded-2xl outline-none mb-6 text-center font-bold tracking-widest border-2 border-transparent focus:border-indigo-500 transition text-lg">
+        <button onclick="app.checkPassword()" class="w-full bg-indigo-600 text-white py-5 rounded-2xl font-bold hover:bg-indigo-700 transition shadow-lg text-lg">Giriş Yap</button>
+        <p id="loginError" class="text-red-500 text-xs mt-4 font-bold hidden italic text-center">Hatalı şifre, lütfen tekrar deneyin.</p>
     </div>
 </div>
 
 <div id="mainApp">
     <div id="toast"></div>
     <div id="progressOverlay">
-        <div class="w-48 h-1.5 bg-slate-100 rounded-full overflow-hidden mb-3">
+        <div class="w-64 h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
             <div id="progressBar" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
         </div>
-        <div id="progressText" class="font-black text-indigo-600 text-[10px] uppercase tracking-widest">İşleniyor: %0</div>
+        <div id="progressText" class="font-black text-indigo-600 text-xs uppercase tracking-widest">İşleniyor: %0</div>
     </div>
 
-    <header class="bg-white border-b px-4 md:px-6 py-2 shadow-sm shrink-0">
-        <div class="flex items-center justify-between gap-3 max-w-7xl mx-auto">
+    <header class="bg-white border-b px-4 md:px-8 py-3 shadow-sm shrink-0">
+        <div class="flex items-center justify-between gap-4 max-w-7xl mx-auto">
+            <div class="flex items-center gap-3 shrink-0">
+                <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="h-12 w-12 object-contain">
+                <h1 class="hidden md:block font-black text-base text-slate-800 uppercase tracking-tighter">Kurumsal Rehber</h1>
+            </div>
+            <div class="relative flex-1 max-w-lg flex gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="app.search(this.value)" placeholder="Hızlı ara..." class="w-full pl-11 pr-4 py-3 bg-slate-100 rounded-2xl outline-none text-sm font-medium border border-transparent focus:border-indigo-300 transition">
+                </div>
+                <button onclick="app.toggleSort()" class="bg-slate-100 text-slate-600 px-4 rounded-2xl hover:bg-indigo-50 hover:text-indigo-600 transition" title="Sırala">
+                    <i id="sortIcon" class="fa-solid fa-arrow-down-a-z"></i>
+                </button>
+            </div>
             <div class="flex items-center gap-2 shrink-0">
-                <img src="https://www.ilbank.gov.tr/assets/ccc/media/logos/ilbank_logo.svg" alt="Logo" class="h-10 w-10 object-contain">
-                <h1 class="hidden md:block font-black text-sm text-slate-800 uppercase tracking-tighter">Kurumsal Rehber</h1>
-            </div>
-            <div class="relative flex-1 max-w-md">
-                <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                <input type="text" id="searchInput" oninput="app.search(this.value)" placeholder="İsim, Tel, Not her şeyi ara..." class="w-full pl-9 pr-4 py-2 bg-slate-100 rounded-xl outline-none text-xs font-medium border border-transparent focus:border-indigo-300 transition">
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-                <button onclick="app.logout()" class="p-2 text-slate-400 hover:text-red-500 transition mr-2" title="Çıkış Yap"><i class="fa-solid fa-power-off"></i></button>
-                <div id="selectionBatch" class="hidden flex items-center bg-indigo-50 px-2 py-1.5 rounded-lg border border-indigo-100">
-                    <span id="selectCount" class="text-[10px] font-bold text-indigo-600 px-1">0</span>
-                    <button onclick="app.deleteSelected()" class="text-red-500 px-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
+                <button onclick="app.logout()" class="p-2.5 text-slate-400 hover:text-red-500 transition mr-2" title="Çıkış Yap"><i class="fa-solid fa-power-off text-lg"></i></button>
+                <div id="selectionBatch" class="hidden flex items-center bg-indigo-50 px-3 py-2 rounded-xl border border-indigo-100">
+                    <span id="selectCount" class="text-xs font-bold text-indigo-600 px-2">0</span>
+                    <button onclick="app.deleteSelected()" class="text-red-500 px-2"><i class="fa-solid fa-trash text-sm"></i></button>
                 </div>
                 <div class="relative">
-                    <button onclick="app.toggleDropdown(event)" class="bg-white border border-slate-200 px-3 py-2 rounded-xl hover:bg-slate-50 transition flex items-center gap-2 font-bold text-[11px] shadow-sm">
+                    <button onclick="app.toggleDropdown(event)" class="bg-white border border-slate-200 px-4 py-3 rounded-2xl hover:bg-slate-50 transition flex items-center gap-2 font-bold text-xs shadow-sm">
                         <i class="fa-solid fa-bars text-indigo-600"></i> İşlemler
                     </button>
                     <div id="opsDropdown" class="dropdown-menu">
-                        <div class="bg-white border rounded-xl shadow-xl p-1.5 ring-4 ring-black/5">
-                            <button onclick="document.getElementById('excelInput').click()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg flex items-center gap-2"><i class="fa-solid fa-file-excel text-green-600 w-4"></i> Excel Yükle</button>
-                            <button onclick="document.getElementById('vcfInput').click()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg flex items-center gap-2"><i class="fa-solid fa-address-book text-orange-500 w-4"></i> vCard Yükle</button>
-                            <button onclick="document.getElementById('backupInput').click()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg flex items-center gap-2"><i class="fa-solid fa-file-code text-indigo-600 w-4"></i> Yedek Yükle</button>
-                            <div class="h-[1px] bg-slate-100 my-1"></div>
-                            <button onclick="app.exportExcel()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg flex items-center gap-2"><i class="fa-solid fa-file-export text-green-700 w-4"></i> Excel İndir</button>
-                            <button onclick="app.exportVCF()" class="w-full text-left px-3 py-2 text-xs hover:bg-slate-50 rounded-lg flex items-center gap-2"><i class="fa-solid fa-address-card text-orange-600 w-4"></i> vCard İndir</button>
-                            <button onclick="app.exportBackup()" class="w-full text-left px-3 py-2 text-xs hover:bg-indigo-50 rounded-lg flex items-center gap-2 font-bold text-indigo-700"><i class="fa-solid fa-database w-4"></i> Tam Yedek Al</button>
+                        <div class="bg-white border rounded-2xl shadow-xl p-2 ring-4 ring-black/5">
+                            <button onclick="document.getElementById('excelInput').click()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 rounded-xl flex items-center gap-3"><i class="fa-solid fa-file-excel text-green-600 w-5"></i> Excel Yükle</button>
+                            <button onclick="document.getElementById('vcfInput').click()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 rounded-xl flex items-center gap-3"><i class="fa-solid fa-address-book text-orange-500 w-5"></i> vCard Yükle</button>
+                            <button onclick="document.getElementById('backupInput').click()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 rounded-xl flex items-center gap-3"><i class="fa-solid fa-file-code text-indigo-600 w-5"></i> Yedek Yükle</button>
+                            <div class="h-[1px] bg-slate-100 my-2"></div>
+                            <button onclick="app.exportExcel()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 rounded-xl flex items-center gap-3"><i class="fa-solid fa-file-export text-green-700 w-5"></i> Excel İndir</button>
+                            <button onclick="app.exportVCF()" class="w-full text-left px-4 py-3 text-sm hover:bg-slate-50 rounded-xl flex items-center gap-3"><i class="fa-solid fa-address-card text-orange-600 w-5"></i> vCard İndir</button>
+                            <button onclick="app.exportBackup()" class="w-full text-left px-4 py-3 text-sm hover:bg-indigo-50 rounded-xl flex items-center gap-3 font-bold text-indigo-700"><i class="fa-solid fa-database w-5"></i> Tam Yedek Al</button>
                         </div>
                     </div>
                 </div>
-                <button onclick="app.openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-2 md:px-4 md:py-2 rounded-xl font-bold text-[11px] transition shadow-md flex items-center gap-1">
-                    <i class="fa-solid fa-plus"></i> <span class="hidden md:inline">Yeni</span>
+                <button onclick="app.openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 md:px-5 md:py-3 rounded-2xl font-bold text-xs transition shadow-md flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> <span class="hidden md:inline">Yeni Kayıt</span>
                 </button>
             </div>
         </div>
@@ -150,72 +160,72 @@
     <input type="file" id="backupInput" hidden onchange="app.importBackup(event)" accept=".json">
 
     <main class="flex-1 flex overflow-hidden flex-col lg:flex-row">
-        <aside class="w-64 bg-white border-r p-5 hidden lg:flex flex-col gap-4 overflow-y-auto">
+        <aside class="w-72 bg-white border-r p-6 hidden lg:flex flex-col gap-5 overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Kategoriler</h3>
-                <button onclick="app.toggleSelectAll()" class="text-[9px] font-bold text-indigo-600 hover:underline">Tümünü Seç</button>
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Kategoriler</h3>
+                <button onclick="app.toggleSelectAll()" class="text-xs font-bold text-indigo-600 hover:underline">Tümünü Seç</button>
             </div>
-            <div id="catList" class="space-y-0.5"></div>
-            <button onclick="app.openCategoryModal()" class="mt-2 text-[10px] font-bold text-slate-400 flex items-center gap-2 hover:text-indigo-600"><i class="fa-solid fa-tags"></i> Yönet</button>
+            <div id="catList" class="space-y-1"></div>
+            <button onclick="app.openCategoryModal()" class="mt-2 text-xs font-bold text-slate-400 flex items-center gap-2 hover:text-indigo-600"><i class="fa-solid fa-tags"></i> Kategori Yönet</button>
         </aside>
 
-        <div class="flex-1 flex flex-col p-3 md:p-6 overflow-hidden">
+        <div class="flex-1 flex flex-col p-4 md:p-8 overflow-hidden">
             <div id="mobileCatBar" class="mobile-cat-bar"></div>
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" id="statText">Veriler alınıyor...</span>
-                <div class="flex bg-white p-0.5 rounded-lg border">
-                    <button onclick="app.setView('grid')" id="btn-grid" class="view-btn p-1.5 px-3 rounded-md active"><i class="fa-solid fa-grip text-xs"></i></button>
-                    <button onclick="app.setView('list')" id="btn-list" class="view-btn p-1.5 px-3 rounded-md"><i class="fa-solid fa-list text-xs"></i></button>
+            <div class="flex justify-between items-center mb-5">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-tighter" id="statText">Veriler yükleniyor...</span>
+                <div class="flex bg-white p-1 rounded-xl border shadow-sm">
+                    <button onclick="app.setView('grid')" id="btn-grid" class="view-btn p-2 px-4 rounded-lg active"><i class="fa-solid fa-grip text-sm"></i></button>
+                    <button onclick="app.setView('list')" id="btn-list" class="view-btn p-2 px-4 rounded-lg"><i class="fa-solid fa-list text-sm"></i></button>
                 </div>
             </div>
-            <div id="contactsWrapper" class="flex-1 overflow-y-auto grid-mode pr-1"></div>
+            <div id="contactsWrapper" class="flex-1 overflow-y-auto grid-mode pr-2"></div>
         </div>
     </main>
 </div>
 
 <div id="contactModal" class="modal" onclick="if(event.target==this)app.closeModal()">
     <div class="modal-content">
-        <form id="contactForm" class="space-y-3">
+        <form id="contactForm" class="space-y-4">
             <input type="hidden" id="cId">
-            <div class="flex flex-col sm:flex-row gap-4 items-center mb-4">
+            <div class="flex flex-col sm:flex-row gap-6 items-center mb-6">
                 <div class="photo-upload-container" onclick="document.getElementById('photoInput').click()">
-                    <span class="photo-placeholder-text text-[8px]">FOTO</span>
+                    <span class="photo-placeholder-text text-[10px] font-bold">FOTOĞRAF</span>
                     <img id="imgPrev" class="w-full h-full object-cover hidden z-10">
                 </div>
                 <input type="file" id="photoInput" hidden onchange="app.handlePhoto(event)">
-                <div class="flex-1 grid grid-cols-2 gap-2 w-full">
-                    <input type="text" id="cAd" placeholder="Ad *" required class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
-                    <input type="text" id="cSoyad" placeholder="Soyad *" required class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
-                    <input type="text" id="cUnvan" placeholder="İş Ünvanı" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm col-span-2">
+                <div class="flex-1 grid grid-cols-2 gap-3 w-full">
+                    <input type="text" id="cAd" placeholder="Ad *" required class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
+                    <input type="text" id="cSoyad" placeholder="Soyad *" required class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
+                    <input type="text" id="cUnvan" placeholder="İş Ünvanı" class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm col-span-2">
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input type="tel" id="cTel1" placeholder="Cep No" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
-                <input type="tel" id="cTel2" placeholder="Sabit" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
-                <input type="tel" id="cTel3" placeholder="Diğer" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input type="tel" id="cTel1" placeholder="Cep No" class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
+                <input type="tel" id="cTel2" placeholder="Sabit No" class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
+                <input type="tel" id="cTel3" placeholder="Diğer No" class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <select id="cKategori" required class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm font-medium"></select>
-                <input type="email" id="cEmail" placeholder="E-posta" class="p-2.5 bg-slate-50 border rounded-xl outline-none text-sm">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <select id="cKategori" required class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm font-medium"></select>
+                <input type="email" id="cEmail" placeholder="E-posta" class="p-3.5 bg-slate-50 border rounded-xl outline-none text-sm">
             </div>
-            <textarea id="cNotlar" placeholder="Notlar..." class="w-full p-2.5 bg-slate-50 border rounded-xl h-20 outline-none resize-none text-sm"></textarea>
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" onclick="app.closeModal()" class="px-5 py-2 text-sm font-bold text-slate-400">Vazgeç</button>
-                <button type="submit" class="bg-indigo-600 text-white px-8 py-2 rounded-xl font-bold text-sm shadow-md">Kaydet</button>
+            <textarea id="cNotlar" placeholder="Notlar..." class="w-full p-3.5 bg-slate-50 border rounded-xl h-28 outline-none resize-none text-sm"></textarea>
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="app.closeModal()" class="px-6 py-3 text-sm font-bold text-slate-400">Vazgeç</button>
+                <button type="submit" class="bg-indigo-600 text-white px-10 py-3 rounded-xl font-bold text-sm shadow-md">Kaydet</button>
             </div>
         </form>
     </div>
 </div>
 
 <div id="categoryModal" class="modal" onclick="if(event.target==this)app.closeCategoryModal()">
-    <div class="bg-white w-full max-sm rounded-2xl p-6 shadow-2xl">
-        <h2 class="font-bold mb-4 text-sm flex items-center gap-2"><i class="fa-solid fa-tags text-indigo-600"></i> Kategori Yönetimi</h2>
-        <div id="manageCatList" class="space-y-1.5 mb-4 max-h-48 overflow-y-auto pr-1"></div>
+    <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl">
+        <h2 class="font-bold mb-6 text-base flex items-center gap-2"><i class="fa-solid fa-tags text-indigo-600"></i> Kategori Yönetimi</h2>
+        <div id="manageCatList" class="space-y-2 mb-6 max-h-60 overflow-y-auto pr-1"></div>
         <div class="flex gap-2">
-            <input type="text" id="newCatInput" placeholder="Yeni..." class="flex-1 p-2 bg-slate-50 border rounded-lg outline-none text-sm">
-            <button onclick="app.addCategory()" class="bg-indigo-600 text-white px-4 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+            <input type="text" id="newCatInput" placeholder="Yeni kategori adı..." class="flex-1 p-3 bg-slate-50 border rounded-xl outline-none text-sm">
+            <button onclick="app.addCategory()" class="bg-indigo-600 text-white px-5 rounded-xl"><i class="fa-solid fa-plus"></i></button>
         </div>
-        <button onclick="app.closeCategoryModal()" class="w-full mt-4 p-2 text-xs font-bold text-slate-400">Kapat</button>
+        <button onclick="app.closeCategoryModal()" class="w-full mt-6 p-2 text-sm font-bold text-slate-400 hover:text-indigo-600 transition">Kapat</button>
     </div>
 </div>
 
@@ -235,6 +245,7 @@ class BulutRehber {
         this.currentCategory = 'Tümü';
         this.view = 'grid';
         this.currentPhoto = null;
+        this.sortDirection = 'asc'; // asc | desc
         this.init();
         document.getElementById('passInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.checkPassword();
@@ -273,12 +284,32 @@ class BulutRehber {
         db.ref("contacts").on("value", s => {
             const d = s.val();
             this.contacts = d ? Object.keys(d).map(k => ({id:k, ...d[k]})) : [];
+            this.sortContacts(); // Veri geldiğinde sırala
             this.render();
             this.renderSideCats();
             document.getElementById('statText').innerText = `${this.contacts.length} Kayıt Senkronize`;
         });
         document.getElementById('contactForm').onsubmit = e => { e.preventDefault(); this.save(); };
         window.addEventListener('click', () => { document.getElementById('opsDropdown').classList.remove('show'); });
+    }
+
+    // SIRALAMA FONKSİYONLARI
+    toggleSort() {
+        this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        const icon = document.getElementById('sortIcon');
+        icon.className = this.sortDirection === 'asc' ? 'fa-solid fa-arrow-down-a-z' : 'fa-solid fa-arrow-up-z-a';
+        this.sortContacts();
+        this.render();
+    }
+
+    sortContacts() {
+        this.contacts.sort((a, b) => {
+            const nameA = (a.ad + " " + (a.soyad || "")).toLocaleLowerCase('tr-TR');
+            const nameB = (b.ad + " " + (b.soyad || "")).toLocaleLowerCase('tr-TR');
+            return this.sortDirection === 'asc' 
+                ? nameA.localeCompare(nameB, 'tr') 
+                : nameB.localeCompare(nameA, 'tr');
+        });
     }
 
     toggleDropdown(e) { e.stopPropagation(); document.getElementById('opsDropdown').classList.toggle('show'); }
@@ -328,15 +359,9 @@ class BulutRehber {
                     const match = card.match(regex);
                     return match ? match[1].trim() : "";
                 };
-
                 const fn = getVCFValue("FN") || "Yeni Kayıt";
                 const telMatches = [...card.matchAll(/TEL(?:;.*)?:(.*)/gi)].map(m => m[1].replace(/[-() ]/g, '').trim());
-                const email = getVCFValue("EMAIL");
-                const note = getVCFValue("NOTE");
-                const title = getVCFValue("TITLE") || getVCFValue("ORG");
-                // Kategori okuma eklendi
                 const category = getVCFValue("CATEGORIES") || "Genel";
-
                 const nid = db.ref().child('contacts').push().key; 
                 batch[nid] = { 
                     ad: fn.split(' ')[0], 
@@ -345,9 +370,9 @@ class BulutRehber {
                     tel2: telMatches[1] || "", 
                     tel3: telMatches[2] || "", 
                     kategori: category, 
-                    unvan: title,
-                    email: email,
-                    notlar: note
+                    unvan: getVCFValue("TITLE") || getVCFValue("ORG"),
+                    email: getVCFValue("EMAIL"),
+                    notlar: getVCFValue("NOTE")
                 }; 
                 this.updateProgress(((idx+1)/cards.length)*100); 
             });
@@ -362,17 +387,12 @@ class BulutRehber {
         reader.onload = async (ev) => {
             try {
                 const backupData = JSON.parse(ev.target.result);
-                if(!backupData.contacts) throw new Error("Geçersiz format");
                 this.updateProgress(10);
                 if(backupData.categories) {
                     const catBatch = {};
-                    backupData.categories.forEach(c => {
-                        const nid = db.ref().child('categories').push().key;
-                        catBatch[nid] = c.name;
-                    });
+                    backupData.categories.forEach(c => { catBatch[db.ref().child('categories').push().key] = c.name; });
                     await db.ref("categories").set(catBatch);
                 }
-                this.updateProgress(40);
                 const contactBatch = {};
                 backupData.contacts.forEach((c, idx) => {
                     const nid = db.ref().child('contacts').push().key;
@@ -381,12 +401,8 @@ class BulutRehber {
                     this.updateProgress(40 + ((idx+1)/backupData.contacts.length)*60);
                 });
                 await db.ref("contacts").update(contactBatch);
-                this.showToast("Yedek Başarıyla Yüklendi", "#10b981");
-                e.target.value = "";
-            } catch (err) {
-                this.showToast("Yedek yükleme hatası!", "#ef4444");
-                document.getElementById('progressOverlay').classList.remove('active');
-            }
+                this.showToast("Yedek Yüklendi", "#10b981"); e.target.value = "";
+            } catch (err) { this.showToast("Hata!", "#ef4444"); }
         }; reader.readAsText(file);
     }
 
@@ -403,45 +419,41 @@ class BulutRehber {
             item.className = `card ${isSelected ? 'selected' : ''}`;
             item.onclick = (e) => { if(e.target.type !== 'checkbox' && !e.target.closest('button')) this.edit(c.id); };
             const fullInfo = `
-                ${c.tel1 ? `<div class="info-row"><i class="fa-solid fa-mobile-screen text-indigo-400 w-3"></i>${c.tel1}</div>` : ''}
-                ${c.tel2 ? `<div class="info-row"><i class="fa-solid fa-phone text-indigo-400 w-3"></i>${c.tel2}</div>` : ''}
-                ${c.tel3 ? `<div class="info-row"><i class="fa-solid fa-tty text-indigo-400 w-3"></i>${c.tel3}</div>` : ''}
-                ${c.email ? `<div class="info-row"><i class="fa-solid fa-envelope text-indigo-400 w-3"></i>${c.email}</div>` : ''}
+                ${c.tel1 ? `<div class="info-row"><i class="fa-solid fa-mobile-screen text-indigo-400 w-4"></i>${c.tel1}</div>` : ''}
+                ${c.tel2 ? `<div class="info-row"><i class="fa-solid fa-phone text-indigo-400 w-4"></i>${c.tel2}</div>` : ''}
+                ${c.tel3 ? `<div class="info-row"><i class="fa-solid fa-tty text-indigo-400 w-4"></i>${c.tel3}</div>` : ''}
+                ${c.email ? `<div class="info-row"><i class="fa-solid fa-envelope text-indigo-400 w-4"></i>${c.email}</div>` : ''}
                 ${c.notlar ? `<div class="card-not-area">${c.notlar}</div>` : ''}
             `;
             if(this.view === 'grid') {
                 item.innerHTML = `
                     <input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}'); event.stopPropagation();">
                     <div class="flex flex-col items-center text-center">
-                        <div class="w-20 h-20 rounded-full border bg-slate-50 overflow-hidden mb-3 shadow-sm shrink-0">
-                            ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold text-xl">${c.ad[0]}</div>`}
+                        <div class="w-24 h-24 rounded-full border bg-slate-50 overflow-hidden mb-4 shadow-sm shrink-0">
+                            ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-indigo-300 font-bold text-2xl">${c.ad[0]}</div>`}
                         </div>
-                        <h4 class="font-bold text-sm text-slate-800 leading-tight">${c.ad} ${c.soyad||''}</h4>
-                        <p class="text-[9px] text-indigo-600 font-black uppercase mt-1 mb-3">${c.unvan || ''}</p>
+                        <h4 class="font-bold text-base text-slate-800 leading-tight">${c.ad} ${c.soyad||''}</h4>
+                        <p class="text-[10px] text-indigo-600 font-black uppercase mt-1.5 mb-4">${c.unvan || ''}</p>
                     </div>
-                    <div class="w-full text-left space-y-1">${fullInfo}</div>
-                    <div class="flex justify-between items-center mt-4 pt-3 border-t">
-                        <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">${c.kategori}</span>
-                        <div class="flex gap-1">
-                            <button onclick="event.stopPropagation(); app.del('${c.id}')" class="p-1.5 text-red-400 bg-red-50 rounded-lg hover:bg-red-100 transition"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                        </div>
+                    <div class="w-full text-left space-y-1.5">${fullInfo}</div>
+                    <div class="flex justify-between items-center mt-5 pt-4 border-t">
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">${c.kategori}</span>
+                        <button onclick="event.stopPropagation(); app.del('${c.id}')" class="p-2 text-red-400 bg-red-50 rounded-xl hover:bg-red-100 transition"><i class="fa-solid fa-trash text-xs"></i></button>
                     </div>`;
             } else {
                 item.innerHTML = `
                     <input type="checkbox" class="select-checkbox" ${isSelected ? 'checked' : ''} onchange="app.toggleSelect('${c.id}'); event.stopPropagation();">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-indigo-400 shrink-0">
+                    <div class="flex items-center gap-4 flex-1 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-indigo-400 shrink-0">
                             ${c.photo ? `<img src="${c.photo}" class="w-full h-full object-cover rounded-full">` : `${c.ad[0]}`}
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-xs truncate">${c.ad} ${c.soyad||''}</div>
-                            <div class="text-[9px] text-slate-400 truncate">${c.unvan || ''}</div>
+                            <div class="font-bold text-sm truncate">${c.ad} ${c.soyad||''}</div>
+                            <div class="text-[10px] text-slate-400 truncate">${c.unvan || ''}</div>
                         </div>
-                        <div class="hidden sm:block text-[11px] font-bold text-slate-600">${c.tel1 || ''}</div>
+                        <div class="hidden sm:block text-sm font-bold text-slate-600">${c.tel1 || ''}</div>
                     </div>
-                    <div class="flex gap-1 ml-2">
-                        <button onclick="event.stopPropagation(); app.del('${c.id}')" class="text-red-300 p-1.5"><i class="fa-solid fa-trash text-xs"></i></button>
-                    </div>`;
+                    <button onclick="event.stopPropagation(); app.del('${c.id}')" class="text-red-300 p-2 ml-4"><i class="fa-solid fa-trash text-sm"></i></button>`;
             }
             wrapper.appendChild(item);
         });
@@ -449,17 +461,14 @@ class BulutRehber {
     }
 
     toggleSelect(id) { if(this.selectedIds.has(id)) this.selectedIds.delete(id); else this.selectedIds.add(id); this.render(); }
-    toggleSelectAll() { if(this.selectedIds.size === this.contacts.length) { this.selectedIds.clear(); } else { this.contacts.forEach(c => this.selectedIds.add(c.id)); } this.render(); }
+    toggleSelectAll() { if(this.selectedIds.size === this.contacts.length) this.selectedIds.clear(); else this.contacts.forEach(c => this.selectedIds.add(c.id)); this.render(); }
 
     async deleteSelected() {
         if(!confirm(`Seçilen ${this.selectedIds.size} kaydı silmek istediğinize emin misiniz?`)) return;
         const updates = {};
-        const ids = Array.from(this.selectedIds);
-        ids.forEach((id, idx) => { updates[id] = null; this.updateProgress(((idx+1)/ids.length)*100); });
+        Array.from(this.selectedIds).forEach((id, idx) => { updates[id] = null; this.updateProgress(((idx+1)/this.selectedIds.size)*100); });
         await db.ref("contacts").update(updates);
-        this.selectedIds.clear();
-        this.render();
-        this.showToast("Seçilenler Silindi", "#ef4444");
+        this.selectedIds.clear(); this.render(); this.showToast("Seçilenler Silindi", "#ef4444");
     }
 
     updateSelectionUI() { document.getElementById('selectionBatch').classList.toggle('hidden', this.selectedIds.size === 0); document.getElementById('selectCount').innerText = this.selectedIds.size; }
@@ -467,10 +476,7 @@ class BulutRehber {
     search(q) { 
         const term = q.trim().toLocaleLowerCase('tr-TR');
         if (!term) { this.render(); return; }
-        const filtered = this.contacts.filter(c => {
-            const searchData = [c.ad, c.soyad, c.tel1, c.tel2, c.tel3, c.unvan, c.notlar, c.email, c.kategori].map(v => (v || "").toLocaleLowerCase('tr-TR')).join(' ');
-            return searchData.includes(term);
-        });
+        const filtered = this.contacts.filter(c => [c.ad, c.soyad, c.tel1, c.tel2, c.tel3, c.unvan, c.notlar, c.email, c.kategori].map(v => (v || "").toLocaleLowerCase('tr-TR')).join(' ').includes(term));
         this.render(filtered); 
     }
 
@@ -485,19 +491,18 @@ class BulutRehber {
 
     renderSideCats() { 
         const list = document.getElementById('catList'); const mobileBar = document.getElementById('mobileCatBar'); if(!list || !mobileBar) return;
-        let html = `<button onclick="app.filterCat('Tümü')" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'hover:bg-slate-100 opacity-60'}">Tümü</button>`;
-        let mHtml = `<button onclick="app.filterCat('Tümü')" class="cat-btn px-3 py-1.5 rounded-lg text-[10px] font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'bg-white border text-slate-600'}">Tümü</button>`;
+        let html = `<button onclick="app.filterCat('Tümü')" class="cat-btn w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'hover:bg-slate-100 opacity-60'}">Tümü</button>`;
+        let mHtml = `<button onclick="app.filterCat('Tümü')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'bg-white border text-slate-600'}">Tümü</button>`;
         this.categories.forEach(c => { 
             const count = this.contacts.filter(item => item.kategori === c.name).length; 
             const isActive = this.currentCategory === c.name;
-            html += `<button onclick="app.filterCat('${c.name}')" class="cat-btn w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-bold flex justify-between items-center group ${isActive ? 'active bg-indigo-600 text-white' : 'hover:bg-indigo-50'}"><span class="${isActive ? 'text-white' : 'text-slate-600'}">${c.name}</span><span class="text-[9px] ${isActive ? 'text-indigo-100' : 'text-slate-300'}">${count}</span></button>`; 
-            mHtml += `<button onclick="app.filterCat('${c.name}')" class="cat-btn px-3 py-1.5 rounded-lg text-[10px] font-bold shrink-0 ${isActive ? 'active bg-indigo-600 text-white' : 'bg-white border text-slate-600'}">${c.name}</button>`; 
+            html += `<button onclick="app.filterCat('${c.name}')" class="cat-btn w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold flex justify-between items-center group ${isActive ? 'active bg-indigo-600 text-white' : 'hover:bg-indigo-50'}"><span>${c.name}</span><span class="text-[10px] ${isActive ? 'text-indigo-100' : 'text-slate-300'}">${count}</span></button>`; 
+            mHtml += `<button onclick="app.filterCat('${c.name}')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold shrink-0 ${isActive ? 'active bg-indigo-600 text-white' : 'bg-white border text-slate-600'}">${c.name}</button>`; 
         });
         list.innerHTML = html; mobileBar.innerHTML = mHtml;
     }
 
     filterCat(cat) { this.currentCategory = cat; this.renderSideCats(); this.render(); }
-
     handlePhoto(e) { const r = new FileReader(); r.onload = ev => { this.currentPhoto = ev.target.result; const img = document.getElementById('imgPrev'); img.src = ev.target.result; img.classList.remove('hidden'); }; r.readAsDataURL(e.target.files[0]); }
     
     edit(id) { 
@@ -514,8 +519,8 @@ class BulutRehber {
     del(id) { if(confirm("Silinsin mi?")) db.ref("contacts/"+id).remove(); }
     openModal() { this.closeModal(); document.getElementById('contactModal').classList.add('active'); document.getElementById('cKategori').value = "Genel"; }
     closeModal() { document.getElementById('contactModal').classList.remove('active'); document.getElementById('contactForm').reset(); document.getElementById('imgPrev').classList.add('hidden'); this.currentPhoto = null; document.getElementById('cId').value = ""; }
-    updateCatUI() { document.getElementById('cKategori').innerHTML = this.categories.map(c => `<option value="${c.name}" ${c.name === 'Genel' ? 'selected' : ''}>${c.name}</option>`).join(''); }
-    renderManageCats() { document.getElementById('manageCatList').innerHTML = this.categories.map(c => `<div class="flex justify-between items-center p-2 bg-slate-50 rounded-lg mb-1 border text-xs"><span>${c.name}</span>${c.name !== "Genel" ? `<button onclick="app.deleteCategory('${c.id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>` : ''}</div>`).join(''); }
+    updateCatUI() { document.getElementById('cKategori').innerHTML = this.categories.map(c => `<option value="${c.name}">${c.name}</option>`).join(''); }
+    renderManageCats() { document.getElementById('manageCatList').innerHTML = this.categories.map(c => `<div class="flex justify-between items-center p-3 bg-slate-50 rounded-xl mb-1.5 border text-sm"><span>${c.name}</span>${c.name !== "Genel" ? `<button onclick="app.deleteCategory('${c.id}')" class="text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>` : ''}</div>`).join(''); }
     addCategory() { const i = document.getElementById('newCatInput'); if(i.value) db.ref("categories").push(i.value); i.value=""; }
     deleteCategory(id) { db.ref("categories/"+id).remove(); }
     openCategoryModal() { document.getElementById('categoryModal').classList.add('active'); }
@@ -526,28 +531,22 @@ class BulutRehber {
     exportVCF() { 
         let vcf = ""; 
         this.contacts.forEach(c => {
-            vcf += `BEGIN:VCARD\n`;
-            vcf += `VERSION:3.0\n`;
-            vcf += `FN;CHARSET=UTF-8:${c.ad} ${c.soyad}\n`;
-            vcf += `N;CHARSET=UTF-8:${c.soyad};${c.ad};;;\n`;
+            vcf += `BEGIN:VCARD\nVERSION:3.0\nFN;CHARSET=UTF-8:${c.ad} ${c.soyad}\nN;CHARSET=UTF-8:${c.soyad};${c.ad};;;\n`;
             if(c.tel1) vcf += `TEL;TYPE=CELL:${c.tel1}\n`;
             if(c.tel2) vcf += `TEL;TYPE=WORK,VOICE:${c.tel2}\n`;
             if(c.tel3) vcf += `TEL;TYPE=HOME,VOICE:${c.tel3}\n`;
             if(c.unvan) vcf += `TITLE;CHARSET=UTF-8:${c.unvan}\n`;
             if(c.email) vcf += `EMAIL;TYPE=INTERNET:${c.email}\n`;
             if(c.notlar) vcf += `NOTE;CHARSET=UTF-8:${c.notlar.replace(/\n/g, '\\n')}\n`;
-            // Kategori alanı eklendi
             if(c.kategori) vcf += `CATEGORIES;CHARSET=UTF-8:${c.kategori}\n`;
             vcf += `END:VCARD\n`;
         });
         const blob = new Blob([vcf], {type: "text/vcard;charset=utf-8"});
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "rehber_kategorili.vcf";
-        link.click();
+        link.href = URL.createObjectURL(blob); link.download = "rehber_yedek.vcf"; link.click();
     }
     
-    exportBackup() { const b = new Blob([JSON.stringify({contacts: this.contacts, categories: this.categories})], {type: "application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "yedek.json"; a.click(); }
+    exportBackup() { const b = new Blob([JSON.stringify({contacts: this.contacts, categories: this.categories})], {type: "application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "rehber_tam_yedek.json"; a.click(); }
 }
 const app = new BulutRehber();
 </script>
