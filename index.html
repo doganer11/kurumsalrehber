@@ -13,59 +13,28 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
-        /* Web Görünüm Ölçeği (%125 hissi için) */
         html { font-size: 18px; }
-
-        /* Mobil Görünüm Düzeltmesi: Ekran 1024px'den küçükse fontu normale çek */
         @media (max-width: 1024px) {
             html { font-size: 15px; }
             #contactsWrapper.grid-mode { grid-template-columns: 1fr !important; }
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; }
-        
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow: hidden; position: relative; }
+        .dev-signature { position: fixed; bottom: 10px; right: 20px; font-size: 10px; font-weight: 800; color: #cbd5e1; letter-spacing: 1px; pointer-events: none; z-index: 100; }
+
         #loginScreen { position: fixed; inset: 0; background: #4f46e5; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
         .login-card { background: white; padding: 2.5rem; border-radius: 2rem; width: 100%; max-width: 450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
-        
         #mainApp { display: none; height: 100vh; flex-direction: column; }
 
-        #contactsWrapper.grid-mode { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
-            gap: 1.5rem; 
-            align-content: start;
-        }
-        
+        #contactsWrapper.grid-mode { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; align-content: start; }
         #contactsWrapper.list-mode { display: flex; flex-direction: column; gap: 0.75rem; }
 
-        .card { 
-            background: white; 
-            border: 1px solid #e2e8f0; 
-            border-radius: 1.5rem; 
-            transition: all 0.3s; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            padding: 1.5rem; 
-            cursor: pointer; 
-            height: 100%; 
-            min-height: 350px; 
-            justify-content: space-between;
-        }
-        
-        .list-mode .card { 
-            flex-direction: row !important; 
-            align-items: center !important; 
-            padding: 0.8rem 1.2rem !important; 
-            border-radius: 1.25rem; 
-            min-height: auto;
-        }
-
+        .card { background: white; border: 1px solid #e2e8f0; border-radius: 1.5rem; transition: all 0.3s; position: relative; display: flex; flex-direction: column; padding: 1.5rem; cursor: pointer; height: 100%; min-height: 350px; justify-content: space-between; }
+        .list-mode .card { flex-direction: row !important; align-items: center !important; padding: 0.8rem 1.2rem !important; border-radius: 1.25rem; min-height: auto; }
         .card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         .card.selected { border: 2px solid #4f46e5; background-color: #f8fafc; }
         
         .select-checkbox { position: absolute; top: 0.85rem; left: 0.85rem; width: 1.3rem; height: 1.3rem; cursor: pointer; z-index: 20; }
-        
         .info-row { font-size: 13px; font-weight: 600; color: #475569; background: #f8fafc; padding: 8px 12px; border-radius: 10px; margin-top: 6px; display: flex; align-items: center; gap: 10px; border: 1px solid #f1f5f9; }
         .card-not-area { font-size: 12px; color: #64748b; background: #fffbeb; padding: 12px; border-radius: 12px; margin-top: 12px; border: 1px dashed #fcd34d; word-break: break-word; white-space: pre-wrap; flex-grow: 1; }
 
@@ -91,6 +60,8 @@
     </style>
 </head>
 <body>
+
+<div class="dev-signature">Hazırlayan B.ERDOGAN</div>
 
 <div id="loginScreen">
     <div class="login-card">
@@ -177,7 +148,12 @@
         <div class="flex-1 flex flex-col p-3 md:p-8 overflow-hidden">
             <div id="mobileCatBar" class="mobile-cat-bar"></div>
             <div class="flex justify-between items-center mb-4">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-tighter" id="statText">Yükleniyor...</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-tighter" id="statText">Yükleniyor...</span>
+                    <button id="catDeleteBtn" onclick="app.deleteCurrentCategoryContacts()" class="hidden bg-red-50 text-red-500 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-red-100 transition">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Kategoriyi Temizle
+                    </button>
+                </div>
                 <div class="flex bg-white p-1 rounded-xl border shadow-sm">
                     <button onclick="app.setView('grid')" id="btn-grid" class="view-btn p-2 px-4 rounded-lg active"><i class="fa-solid fa-grip text-sm"></i></button>
                     <button onclick="app.setView('list')" id="btn-list" class="view-btn p-2 px-4 rounded-lg"><i class="fa-solid fa-list text-sm"></i></button>
@@ -189,24 +165,17 @@
 </div>
 
 <script>
-// TÜM JS FONKSİYONLARI %100 AYNI KORUNDU
 const APP_PASSWORD = "1234"; 
 const DATABASE_URL = "https://kurumsalrehber-18ac9-default-rtdb.firebaseio.com"; 
-
 const firebaseConfig = { databaseURL: DATABASE_URL };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 class BulutRehber {
     constructor() {
-        this.contacts = [];
-        this.categories = [];
-        this.selectedIds = new Set();
-        this.currentCategory = 'Tümü';
-        this.view = 'grid';
-        this.currentPhoto = null;
-        this.sortDirection = 'asc';
-        this.init();
+        this.contacts = []; this.categories = []; this.selectedIds = new Set();
+        this.currentCategory = 'Tümü'; this.view = 'grid'; this.currentPhoto = null;
+        this.sortDirection = 'asc'; this.init();
         document.getElementById('passInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.checkPassword(); });
     }
 
@@ -230,27 +199,33 @@ class BulutRehber {
             const d = s.val();
             this.categories = d ? Object.keys(d).map(k => ({id: k, name: d[k]})) : [];
             if (this.categories.length === 0) db.ref("categories").push("Genel");
-            this.updateCatUI();
-            this.renderSideCats();
-            this.renderManageCats();
+            this.updateCatUI(); this.renderSideCats(); this.renderManageCats();
         });
         db.ref("contacts").on("value", s => {
             const d = s.val();
             this.contacts = d ? Object.keys(d).map(k => ({id:k, ...d[k]})) : [];
-            this.sortContacts();
-            this.render();
-            this.renderSideCats();
+            this.sortContacts(); this.render(); this.renderSideCats();
             document.getElementById('statText').innerText = `${this.contacts.length} Kayıt`;
         });
         document.getElementById('contactForm').onsubmit = e => { e.preventDefault(); this.save(); };
         window.addEventListener('click', () => { document.getElementById('opsDropdown').classList.remove('show'); });
     }
 
+    async deleteCurrentCategoryContacts() {
+        if (this.currentCategory === 'Tümü') return;
+        const toDelete = this.contacts.filter(c => c.kategori === this.currentCategory);
+        if (toDelete.length === 0) return;
+        if (confirm(`"${this.currentCategory}" kategorisindeki TÜM (${toDelete.length}) kişiler silinecek?`)) {
+            const updates = {}; toDelete.forEach(c => { updates[c.id] = null; });
+            await db.ref("contacts").update(updates);
+            this.showToast("Kategori Temizlendi", "#ef4444");
+        }
+    }
+
     toggleSort() {
         this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
         document.getElementById('sortIcon').className = this.sortDirection === 'asc' ? 'fa-solid fa-arrow-down-a-z' : 'fa-solid fa-arrow-up-z-a';
-        this.sortContacts();
-        this.render();
+        this.sortContacts(); this.render();
     }
 
     sortContacts() {
@@ -302,9 +277,10 @@ class BulutRehber {
             const batch = {};
             cards.forEach((card, idx) => { 
                 const getVCFValue = (key) => {
-                    const regex = new RegExp(`${key}(?:;.*)?:(.*)`, "i");
+                    // Notlar için çok satırlı desteği olan regex
+                    const regex = new RegExp(`${key}(?:;.*)?:([\\s\\S]*?)(?=\\r?\\n[A-Z]|$)`, "i");
                     const match = card.match(regex);
-                    return match ? match[1].trim() : "";
+                    return match ? match[1].replace(/\\n/g, '\n').replace(/\\,/g, ',').trim() : "";
                 };
                 const fn = getVCFValue("FN") || "Yeni Kayıt";
                 const telMatches = [...card.matchAll(/TEL(?:;.*)?:(.*)/gi)].map(m => m[1].replace(/[-() ]/g, '').trim());
@@ -314,7 +290,8 @@ class BulutRehber {
                     tel1: telMatches[0] || "", tel2: telMatches[1] || "", tel3: telMatches[2] || "", 
                     kategori: getVCFValue("CATEGORIES") || "Genel", 
                     unvan: getVCFValue("TITLE") || getVCFValue("ORG"),
-                    email: getVCFValue("EMAIL"), notlar: getVCFValue("NOTE")
+                    email: getVCFValue("EMAIL"), 
+                    notlar: getVCFValue("NOTE") // Düzeltilmiş not alanı
                 }; 
                 this.updateProgress(((idx+1)/cards.length)*100); 
             });
@@ -400,8 +377,7 @@ class BulutRehber {
 
     async deleteSelected() {
         if(!confirm(`Seçilen ${this.selectedIds.size} kayıt silinecek?`)) return;
-        const updates = {};
-        Array.from(this.selectedIds).forEach(id => { updates[id] = null; });
+        const updates = {}; Array.from(this.selectedIds).forEach(id => { updates[id] = null; });
         await db.ref("contacts").update(updates);
         this.selectedIds.clear(); this.render(); this.showToast("Silindi", "#ef4444");
     }
@@ -426,6 +402,7 @@ class BulutRehber {
 
     renderSideCats() { 
         const list = document.getElementById('catList'); const mobileBar = document.getElementById('mobileCatBar'); if(!list || !mobileBar) return;
+        document.getElementById('catDeleteBtn').classList.toggle('hidden', this.currentCategory === 'Tümü');
         let html = `<button onclick="app.filterCat('Tümü')" class="cat-btn w-full text-left px-4 py-2.5 rounded-xl text-xs font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'hover:bg-slate-100 opacity-60'}">Tümü</button>`;
         let mHtml = `<button onclick="app.filterCat('Tümü')" class="cat-btn px-4 py-2 rounded-xl text-xs font-bold ${this.currentCategory === 'Tümü' ? 'active bg-indigo-600 text-white' : 'bg-white border text-slate-600'}">Tümü</button>`;
         this.categories.forEach(c => { 
@@ -439,7 +416,6 @@ class BulutRehber {
 
     filterCat(cat) { this.currentCategory = cat; this.renderSideCats(); this.render(); }
     handlePhoto(e) { const r = new FileReader(); r.onload = ev => { this.currentPhoto = ev.target.result; const img = document.getElementById('imgPrev'); img.src = ev.target.result; img.classList.remove('hidden'); }; r.readAsDataURL(e.target.files[0]); }
-    
     edit(id) { 
         const c = this.contacts.find(x => x.id === id); if(!c) return;
         document.getElementById('cId').value = c.id; document.getElementById('cAd').value = c.ad; document.getElementById('cSoyad').value = c.soyad || ""; 
@@ -450,7 +426,6 @@ class BulutRehber {
         if(c.photo) { this.currentPhoto = c.photo; const img = document.getElementById('imgPrev'); img.src = c.photo; img.classList.remove('hidden'); } else { this.currentPhoto = null; document.getElementById('imgPrev').classList.add('hidden'); }
         document.getElementById('contactModal').classList.add('active');
     }
-
     del(id) { if(confirm("Silinsin mi?")) db.ref("contacts/"+id).remove(); }
     openModal() { this.closeModal(); document.getElementById('contactModal').classList.add('active'); document.getElementById('cKategori').value = "Genel"; }
     closeModal() { document.getElementById('contactModal').classList.remove('active'); document.getElementById('contactForm').reset(); document.getElementById('imgPrev').classList.add('hidden'); this.currentPhoto = null; document.getElementById('cId').value = ""; }
@@ -468,6 +443,7 @@ class BulutRehber {
             if(c.tel1) vcf += `TEL;TYPE=CELL:${c.tel1}\n`;
             if(c.unvan) vcf += `TITLE;CHARSET=UTF-8:${c.unvan}\n`;
             if(c.kategori) vcf += `CATEGORIES;CHARSET=UTF-8:${c.kategori}\n`;
+            if(c.notlar) vcf += `NOTE;CHARSET=UTF-8:${c.notlar.replace(/\n/g, '\\n')}\n`; // Not dışa aktarma düzeltildi
             vcf += `END:VCARD\n`;
         });
         const blob = new Blob([vcf], {type: "text/vcard;charset=utf-8"});
